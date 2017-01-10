@@ -22,22 +22,37 @@ missings.
 If there are any CA atoms with the same number, the program automatically
 takes only the first and ignore all the rest with the same number.
 
-##Example: 5dn7
+## For Whom It Can Be Useful
+For people who are not familiar with pdb-format, but want to consider
+geometry of real experimental proteins (like I do). So they want to have a polymer
+chain of C-alpha atoms without double sites or any missing sites (then
+the link length is ~ 3.8 Å all the time).
+
+## Quick Start
+
+```
+$ git clone https://github.com/Anny-Moon/PDB-parser_for_dummies
+$ sh compile_script
+$ ./pdb-reader
+```
+## Example: 5dn7
 ```
 $ ./pdb-reader 5dn7
 ```
 The output is:
 ```
 Protein: 5dn7
+The first atom has number 345.
 Missing atoms from 361 to 365 (5 atoms) 
 Missing atoms from 558 to 562 (5 atoms) 
+The last atom has number  594.
 Number of C-alpha atoms in the model: 250
 But there is data only for 240 of them.
 
-*****************************************
-* Maps of missing atoms                 *
-* atom: .         missing atom: 0       *
-*****************************************
+***************************************
+*      Maps of missing atoms          *
+*  atom: .         missing atom: 0    *
+***************************************
 Percentage: string length = 100 chars.
 
 ......00.............................................................................00.............
@@ -47,7 +62,7 @@ Actual: string length = number of atoms in model.
 ................00000................................................................................................................................................................................................00000................................
 
 *****************************************
-If you want to rewrite dat-file with only one segment call
+If you want to rewrite dat-file with only one segment, call
 ./pdb-reader (without arguments) for instructions.
 ```
 
@@ -70,9 +85,28 @@ or the same:
 ```
 $ ./pdb-reader 5dn7 366
 ```
-## For Whom It Can Be Useful
+And the output is:
+```
+Protein: 5dn7
+Number of C-alpha atoms: 192
+```
+what means that now in `results/xyz_5dn7.dat` we have 192 lines wich correspond to 192 atoms between the 
+firs and the second missing parts.
+
+If you want to take the first segment (from the first atom to the first missing atom) you always can put
+second argument is egual to `0`:
+
+```
+$ ./pdb-reader 5dn7 0
+```
+### Note
+If you want to have your outpun in file, not on the screen you always can do this:
+```
+$ ./pdb-reader 5dn7 > create_and_put_everything_here.dat
+```
 
  
-
+___
 Anna Sinelnikova
+
 Uppsala, 2017

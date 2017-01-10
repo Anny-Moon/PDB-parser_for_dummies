@@ -27,7 +27,7 @@ int main(int np, char** p)
     int k;
     int lineCounter = 0;
     int firstAtom, lastAtom;
-    int N, numberOfAtom;
+    int N, numberOfAtom = -1;
     
     char str [100];
     
@@ -50,10 +50,10 @@ int main(int np, char** p)
     }
 
     fname = (char*) malloc(100);
-    sprintf(fname,"%s.pdb",p[1]);
+    sprintf(fname,"data/%s.pdb",p[1]);
     fp=fopen(fname,"r");
     if(fp==NULL){
-	printf("Can't find %s.pdb\nNote: write the name of the file without extantion.\n",p[1]);
+	printf("Error: Can't find %s.pdb\nNote: write the name of the file without extantion.\n",p[1]);
 	exit(1);
     }
     free(fname);
@@ -62,82 +62,142 @@ int main(int np, char** p)
     printf("Protein: %s\n",p[1]);
     
     fname = (char*) malloc(100);
-    sprintf(fname,"xyz_%s.dat",p[1]);
+    sprintf(fname,"results/xyz_%s.dat",p[1]);
     fp1=fopen(fname, "w");
+    if(fp1==NULL){
+	printf("Error: Can't open '%s'\nNote: probably you don't have folde 'results'.\n",fname);
+	exit(1);
+    }
 
-    do{
-	fscanf(fp,"%s",str);
-	if(Compare_strings(str,atom)){ //found ATOM
-	    fscanf(fp,"%s",str); //trash
+// reading the whole model and presenting of map of missimg atoms
+    if(p[2]==NULL){
+	do{
 	    fscanf(fp,"%s",str);
-	    
-	    if(Compare_strings(str,ca)){ //found CA -c-alpha atom
+	    if(Compare_strings(str,atom)){ //found ATOM
 		fscanf(fp,"%s",str); //trash
-		fscanf(fp,"%1s",str); //trash
+		fscanf(fp,"%s",str);
+	    
+		if(Compare_strings(str,ca)){ //found CA -c-alpha atom
+		    fscanf(fp,"%s",str); //trash
+		    fscanf(fp,"%1s",str); //trash
 		
-		fscanf(fp,"%i",&k);
-		//printf("%i\n",k);
-		if(k!=numberOfAtom+1 && lineCounter!=0){
+		    fscanf(fp,"%i",&k);
+		    //printf("%i\n",k);
+		    if(k!=numberOfAtom+1 && lineCounter!=0){
 		    
-		    if(k==numberOfAtom)
-			continue;
+			if(k==numberOfAtom)
+			    continue;
 		    
-		    else if(k>numberOfAtom+1){
-			missingFrom[missingCounter] = numberOfAtom+1;
-			missingTo[missingCounter] = k-1;
-			printf("Missing atoms from %i to %i (%i atoms) \n",\
-			    missingFrom[missingCounter], missingTo[missingCounter], k-numberOfAtom-1);
-			missingCounter++;
+			else if(k>numberOfAtom+1){
+			    missingFrom[missingCounter] = numberOfAtom+1;
+			    missingTo[missingCounter] = k-1;
+			    printf("Missing atoms from %i to %i (%i atoms) \n",\
+				missingFrom[missingCounter], missingTo[missingCounter], k-numberOfAtom-1);
+			    missingCounter++;
+			}
+			else{
+			    printf("Error: strange order of atoms numbers before atom %i\n Exit\n",k);
+			    exit(1);
+			}
+		    
 		    }
-		    else{
-			printf("Error: strange order of atoms numbers before atom %i\n Exit\n",k);
-			exit(1);
-		    }
-		    
+		
+		    numberOfAtom = k;
+		    if(lineCounter==0)
+			firstAtom = numberOfAtom;
+		
+		    fscanf(fp,"%s",str);
+		    fprintf(fp1,"%s\t",str);//x
+		    fscanf(fp,"%s",str);
+		    fprintf(fp1,"%s\t",str);//y
+		    fscanf(fp,"%s",str);
+		    fprintf(fp1,"%s\n",str);//z
+		
+		    lineCounter++;
 		}
-		
-		numberOfAtom = k;
-		if(lineCounter==0)
-		    firstAtom = numberOfAtom;
-		
-		fscanf(fp,"%s",str);
-		fprintf(fp1,"%s\t",str);//x
-		fscanf(fp,"%s",str);
-		fprintf(fp1,"%s\t",str);//y
-		fscanf(fp,"%s",str);
-		fprintf(fp1,"%s\n",str);//z
-		
-		lineCounter++;
 	    }
 	}
+	while(!Compare_strings(str,end) && !Compare_strings(str,endmdl));//after this loop str=etalon
+	lastAtom = numberOfAtom;
+    
+    
+    
+	N = lastAtom-firstAtom+1;
+	printf("Number of C-alpha atoms in the model: %i\n",N);
+    
+	if(missingCounter!=0){
+	    printf("But there is data only for %i of them.\n", lineCounter);
+	    printf("\n");
+	    printf("*****************************************\n");
+	    printf("* Maps of missing atoms                 *\n");
+	    printf("* atom: .         missing atom: 0       *\n");
+	    printf("*****************************************\n");
+	    printf("Persentage: string length = 100 chars.\n\n");
+	    mapOfMissings(firstAtom, lastAtom, missingCounter, missingFrom, missingTo, 100);
+	    printf("\n");
+	    printf("Actual: string length = number of atoms in model.\n\n");
+	    mapOfMissings(firstAtom, lastAtom, missingCounter, missingFrom, missingTo, N);
+	    printf("\n");
+	    printf("*****************************************\n");
+	    printf("\n");
+	}
+	
+	else
+	    printf("No missing data in pdb-file.\n\n");
     }
-    while(!Compare_strings(str,end) && !Compare_strings(str,endmdl));//after this loop str=etalon
-    lastAtom = numberOfAtom;
+
+// reading from atom with given number to the first miss atom
+    else{
+	firstAtom = atoi(p[2]);
+	numberOfAtom = firstAtom-1;
+	do{
+	    fscanf(fp,"%s",str);
+	    if(Compare_strings(str,atom)){ //found ATOM
+		fscanf(fp,"%s",str); //trash
+		fscanf(fp,"%s",str);
+	    
+		if(Compare_strings(str,ca)){ //found CA -c-alpha atom
+		    fscanf(fp,"%s",str); //trash
+		    fscanf(fp,"%1s",str); //trash
+		
+		    fscanf(fp,"%i",&k);
+		    //printf("%i\n",k);
+		    if(k>=firstAtom){
+		    
+			if(k==numberOfAtom)
+			    continue;
+		    
+			else if(k>numberOfAtom+1 && lineCounter!=0){
+			    break;
+			}
+			
+			else{
+			    fscanf(fp,"%s",str);
+			    fprintf(fp1,"%s\t",str);//x
+			    fscanf(fp,"%s",str);
+			    fprintf(fp1,"%s\t",str);//y
+			    fscanf(fp,"%s",str);
+			    fprintf(fp1,"%s\n",str);//z
+			}
+		    
+		    lineCounter++;
+		    }
+		
+		    numberOfAtom = k;
+		}
+	    }
+	}
+	while(!Compare_strings(str,end) && !Compare_strings(str,endmdl));//after this loop str=etalon
+	
+	lastAtom = numberOfAtom;
+	N = lastAtom-firstAtom+1;
+	printf("Number of C-alpha atoms in dat-file: %i\n",lineCounter);
+    
+    }
     
     fclose(fp1);
     fclose(fp);
     free(fname);
-    
-    N = lastAtom-firstAtom+1;
-    printf("Number of C-alpha atoms in the model: %i\n",N);
-    
-    if(missingCounter!=0){
-	printf("But there is data only for %i of them.\n", lineCounter);
-	printf("\n");
-	printf("*****************************************\n");
-	printf("* Maps of missing atoms                 *\n");
-	printf("* '.' - atom, '0' - missing atom.       *\n");
-	printf("*****************************************\n");
-	printf("Persentage: string length = 100 chars.\n\n");
-	mapOfMissings(firstAtom, lastAtom, missingCounter, missingFrom, missingTo, 100);
-	printf("\n");
-	printf("Actual: string length = number of atoms in model.\n\n");
-	mapOfMissings(firstAtom, lastAtom, missingCounter, missingFrom, missingTo, N);
-	printf("\n");
-	printf("*****************************************\n");
-	printf("\n");
-    }
-    
     return 0;
 }
 

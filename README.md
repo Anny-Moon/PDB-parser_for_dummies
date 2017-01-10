@@ -26,7 +26,7 @@ takes only the first and ignore all the rest with the same number.
 For people who are not familiar with pdb-format, but want to consider
 geometry of real experimental proteins (like I do). So they want to have a polymer
 chain of C-alpha atoms without double sites or any missing sites (then
-the link length is ~ 3.8 Å all the time).
+the link length is ~ 3.8 A all the time).
 
 ## Quick Start
 
@@ -42,11 +42,11 @@ $ ./pdb-reader 5dn7
 The output is:
 ```
 Protein: 5dn7
-The first atom has number 345.
-Missing atoms from 361 to 365 (5 atoms) 
-Missing atoms from 558 to 562 (5 atoms) 
-The last atom has number  594.
-Number of C-alpha atoms in the model: 250
+The first CA atom has number 345.
+Missing atoms from 361 to 365 (5 atoms).
+Missing atoms from 558 to 562 (5 atoms).
+The last CA atom has number  594.
+Number of CA atoms in the model: 250.
 But there is data only for 240 of them.
 
 ***************************************
@@ -88,7 +88,7 @@ $ ./pdb-reader 5dn7 366
 And the output is:
 ```
 Protein: 5dn7
-Number of C-alpha atoms: 192
+Number of CA atoms: 192.
 ```
 what means that now in `results/xyz_5dn7.dat` we have 192 lines wich correspond to 192 atoms between the 
 firs and the second missing parts.

@@ -9,6 +9,17 @@
 *  ...
 * <x_last_atom>     <y_last_atom>     <z_last_atom>
 *
+* If there are any missing atoms in the model, the program will tell about it
+* and show maps for them both in percents and actual size.
+*
+* You will be able to rewrite dat-file with only one segment in order to not have any
+* missings.
+*
+* If there are any CA atoms with the same number, the program automatically
+* takes only the first and ignore all the rest with the same number.
+* 
+* (see Readme.me for more details and examples)
+* 
 * Anna Sinelnikova
 * Uppsala, 2017
 *------------------------------------------------------------------------------*/
@@ -34,15 +45,15 @@ int main(int np, char** p)
     char end []="END";
     char endmdl []="ENDMDL";
     char atom [] ="ATOM";
+    char ter [] = "TER";
     char ca [] ="CA";
     
     int missingFrom[100];
     int missingTo[100];
     int missingCounter = 0;
     
-    char ctmp;
     char *fname;
-    FILE *fp, *fp1,*fp2;
+    FILE *fp, *fp1;
 
     if(p[1]==NULL){
 	printf("\nI need the name of pdb-file without extention as an argument.\nExample: ./pdf_reader 5dn7\n");
@@ -104,7 +115,7 @@ int main(int np, char** p)
 			else if(k>numberOfAtom+1){
 			    missingFrom[missingCounter] = numberOfAtom+1;
 			    missingTo[missingCounter] = k-1;
-			    printf("Missing atoms from %i to %i (%i atoms) \n",\
+			    printf("Missing atoms from %i to %i (%i atoms).\n",\
 				missingFrom[missingCounter], missingTo[missingCounter], k-numberOfAtom-1);
 			    missingCounter++;
 			}
@@ -118,7 +129,7 @@ int main(int np, char** p)
 		    numberOfAtom = k;
 		    if(lineCounter==0){
 			firstAtom = numberOfAtom;
-			printf("The first atom has number %i.\n",firstAtom);
+			printf("The first CA atom has number %i.\n",firstAtom);
 		    }
 		    
 		    fscanf(fp,"%s",str);
@@ -132,14 +143,14 @@ int main(int np, char** p)
 		}
 	    }
 	}
-	while(!Compare_strings(str,end) && !Compare_strings(str,endmdl));//after this loop str=etalon
+	while(!Compare_strings(str,end) && !Compare_strings(str,endmdl)&& !Compare_strings(str,ter));//after this loop str=etalon
 	lastAtom = numberOfAtom;
     
 	N = lastAtom-firstAtom+1;
 	
-	printf("The last atom has number  %i.\n",lastAtom);
+	printf("The last CA atom has number  %i.\n",lastAtom);
 	
-	printf("Number of C-alpha atoms in the model: %i\n",N);
+	printf("Number of CA atoms in the model: %i.\n",N);
 	
 	if(missingCounter!=0){
 	    printf("But there is data only for %i of them.\n", lineCounter);
@@ -206,9 +217,9 @@ int main(int np, char** p)
 		}
 	    }
 	}
-	while(!Compare_strings(str,end) && !Compare_strings(str,endmdl));//after this loop str=etalon
+	while(!Compare_strings(str,end) && !Compare_strings(str,endmdl)&& !Compare_strings(str,ter));//after this loop str=etalon
 	
-	printf("Number of C-alpha atoms in: %i\n", lineCounter);
+	printf("Number of CA atoms: %i.\n", lineCounter);
     
     }
     

@@ -1,15 +1,17 @@
 
 Protein: 5dn7
+The first atom has number 345.
 Missing atoms from 361 to 365 (5 atoms) 
 Missing atoms from 558 to 562 (5 atoms) 
+The last atom has number  594.
 Number of C-alpha atoms in the model: 250
 But there is data only for 240 of them.
 
-*****************************************
-* Maps of missing atoms                 *
-* atom: .         missing atom: 0       *
-*****************************************
-Persentage: string length = 100 chars.
+***************************************
+*      Maps of missing atoms          *
+*  atom: .         missing atom: 0    *
+***************************************
+Percentage: string length = 100 chars.
 
 ......00.............................................................................00.............
 
@@ -18,6 +20,6 @@ Actual: string length = number of atoms in model.
 ................00000................................................................................................................................................................................................00000................................
 
 *****************************************
-If you want to rewrite dat-file with only one segment call
+If you want to rewrite dat-file with only one segment, call
 ./pdb-reader (without arguments) for instructions.
 

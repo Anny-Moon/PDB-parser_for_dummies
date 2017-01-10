@@ -47,7 +47,7 @@ int main(int np, char** p)
     if(p[1]==NULL){
 	printf("\nI need the name of pdb-file without extention as an argument.\nExample: ./pdf_reader 5dn7\n");
 	printf("Then I will open 'data/<name_you_gave_me>.pdb'.\n");
-	printf("I will find there all CA-atoms coordinates and write them in 'results/<name_you_gave_me>.dat'.\n");
+	printf("I will find there all CA-atoms coordinates and write them in 'results/xyz_<name_you_gave_me>.dat'.\n");
 	printf("In addition I will show you maps of missing atoms if there are any.\n\n");
 	
 	printf("In case of missing atoms in the model:");
@@ -116,9 +116,11 @@ int main(int np, char** p)
 		    }
 		
 		    numberOfAtom = k;
-		    if(lineCounter==0)
+		    if(lineCounter==0){
 			firstAtom = numberOfAtom;
-		
+			printf("The first atom has number %i.\n",firstAtom);
+		    }
+		    
 		    fscanf(fp,"%s",str);
 		    fprintf(fp1,"%s\t",str);//x
 		    fscanf(fp,"%s",str);
@@ -134,15 +136,18 @@ int main(int np, char** p)
 	lastAtom = numberOfAtom;
     
 	N = lastAtom-firstAtom+1;
+	
+	printf("The last atom has number  %i.\n",lastAtom);
+	
 	printf("Number of C-alpha atoms in the model: %i\n",N);
-    
+	
 	if(missingCounter!=0){
 	    printf("But there is data only for %i of them.\n", lineCounter);
 	    printf("\n");
-	    printf("*****************************************\n");
-	    printf("* Maps of missing atoms                 *\n");
-	    printf("* atom: .         missing atom: 0       *\n");
-	    printf("*****************************************\n");
+	    printf("***************************************\n");
+	    printf("*      Maps of missing atoms          *\n");
+	    printf("*  atom: .         missing atom: 0    *\n");
+	    printf("***************************************\n");
 	    printf("Percentage: string length = 100 chars.\n\n");
 	    mapOfMissings(firstAtom, lastAtom, missingCounter, missingFrom, missingTo, 100);
 	    printf("\n");
@@ -150,12 +155,14 @@ int main(int np, char** p)
 	    mapOfMissings(firstAtom, lastAtom, missingCounter, missingFrom, missingTo, N);
 	    printf("\n");
 	    printf("*****************************************\n");
-	    printf("If you want to rewrite dat-file with only one segment call\n./pdb-reader (without arguments) for instructions.\n");
+	    printf("If you want to rewrite dat-file with only one segment, call\n./pdb-reader (without arguments) for instructions.\n");
 	    printf("\n");
 	}
 	
 	else
 	    printf("No missing data in pdb-file.\n\n");
+	
+	
     }
 
 // reading from atom with given number to the first miss atom
@@ -201,7 +208,7 @@ int main(int np, char** p)
 	}
 	while(!Compare_strings(str,end) && !Compare_strings(str,endmdl));//after this loop str=etalon
 	
-	printf("Number of C-alpha atoms in dat-file: %i\n",lineCounter);
+	printf("Number of C-alpha atoms in: %i\n", lineCounter);
     
     }
     

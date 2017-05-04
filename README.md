@@ -106,7 +106,8 @@ If you want to have your outpun in file, not on the screen you always can do thi
 $ ./pdb-reader 5dn7 > create_and_put_everything_here.dat
 ```
 
- 
+## Bugs
+Since the autor doesn't know all possible formats of notation in PDB, there should be cases when the program will give absurd result. These cases will be fixed when revealed.
 ___
 Anna Sinelnikova
 

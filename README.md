@@ -31,8 +31,8 @@ the link length is ~ 3.8 A all the time).
 ## Quick Start
 
 ```
-$ git clone https://github.com/Anny-Moon/PDB-parser_for_dummies
-$ cd PDB-parser_for_dummies/
+$ git clone https://github.com/Anny-Moon/Simple_PDB_parser
+$ cd Simple_PDB_parser/
 $ sh compile_script
 $ ./pdb-reader
 ```

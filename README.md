@@ -1,4 +1,4 @@
-# PDB Parser for Dummies
+# Simple PDB Parser
 
 Here is a very simple reader for [Protein Data Bank (PDB)](http://www.rcsb.org) files.
 (At this stage of the project) Reader can extract xyz-coordinates of C-alpha (CA)

@@ -1,3 +1,6 @@
+[![DOI](https://zenodo.org/badge/78453769.svg)](https://zenodo.org/badge/latestdoi/78453769)
+
+
 # Simple PDB Parser
 
 Here is a very simple reader for [Protein Data Bank (PDB)](http://www.rcsb.org) files.

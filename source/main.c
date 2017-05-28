@@ -40,13 +40,55 @@
 *------------------------------------------------------------------------------*/
 
 #include "CA.h"
+#include <curl/curl.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
 
+
+struct Chunk{
+    char* data;
+    int size;
+};
+
+size_t pca_curl_write_callback(char *data, size_t size, size_t nmemb, void *buffer){
+    unsigned int i;
+    char* newData;
+    char* tmp;
+    int buff_size;
+    
+    newData = (char*)malloc(nmemb);
+    
+    for(i=0; i<nmemb; i++){
+	newData[i] = data[i];
+    }
+    
+    buff_size = ((struct Chunk*)buffer)->size;
+    tmp = (char*)malloc(buff_size);
+    
+    for(i=0; i<buff_size; i++){
+	tmp[i] =((char*)(((struct Chunk*)buffer)->data ))[i];
+//	printf("%c",tmp[i]);
+    }
+    
+    ((struct Chunk*)buffer)->data = (char*)realloc(((struct Chunk*)buffer)->data, (buff_size + nmemb));
+    for(i=0; i<buff_size; i++)
+	(((struct Chunk*)buffer)->data)[i] = tmp[i];
+
+    for(i=0; i<nmemb; i++)
+	(((struct Chunk*)buffer)->data)[buff_size + i] = newData[i];
+    
+    ((struct Chunk*)buffer)->size = buff_size+nmemb;
+    free(tmp);
+    free(newData);
+    
+    return size*nmemb;
+}
+
 int main(int np, char** p)
 {
     int k;
+    int i;
     int lineCounter = 0;
     int firstAtom, lastAtom;
     int N, numberOfAtom = -1;
@@ -64,6 +106,7 @@ int main(int np, char** p)
     int missingCounter = 0;
     
     char *fname;
+    char *url;
     FILE *fp, *fp1;
 
     if(p[1]==NULL){
@@ -84,6 +127,28 @@ int main(int np, char** p)
 	exit(1);
     }
 
+    url = (char*) malloc(1000);
+    sprintf(url,"https://files.rcsb.org/view/%s.pdb",p[1]);
+    printf("%s\n",url);
+    
+//    char** dataFromWeb;
+//    dataFromWeb =(char**)malloc(sizeof(char*));
+//    dataFromWeb[0] =(char*)malloc(5);
+    
+    struct Chunk* dataFromWeb;
+    dataFromWeb = (struct Chunk*)malloc(sizeof(struct Chunk));
+    dataFromWeb->size = 1;
+    dataFromWeb->data = (char*)malloc(dataFromWeb->size);
+    
+    CURL *easy_handle = curl_easy_init();
+    curl_easy_setopt(easy_handle, CURLOPT_URL, url);
+    curl_easy_setopt(easy_handle, CURLOPT_WRITEFUNCTION, pca_curl_write_callback);
+    curl_easy_setopt(easy_handle, CURLOPT_WRITEDATA, dataFromWeb);
+    curl_easy_perform(easy_handle);
+    
+    for(i=0;i<dataFromWeb->size;i++)
+	printf("%c",dataFromWeb->data[i]);
+    
     fname = (char*) malloc(100);
     sprintf(fname,"data/%s.pdb",p[1]);
     fp=fopen(fname,"r");

@@ -39,14 +39,10 @@
 * Uppsala, 2017
 *------------------------------------------------------------------------------*/
 
+#include <CA.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
-
-typedef enum { false, true } bool;
-
-bool Compare_strings(char *a, char *b);
-void mapOfMissings(int firstAtom, int lastAtom, int missingCounter, const int* missingFrom, const int* missingTo, int stringLength);
 
 int main(int np, char** p)
 {
@@ -112,11 +108,11 @@ int main(int np, char** p)
     if(p[2]==NULL){
 	do{
 	    fscanf(fp,"%s",str);
-	    if(Compare_strings(str,atom)){ //found ATOM
+	    if(pca_compare_strings(str,atom)){ //found ATOM
 		fscanf(fp,"%s",str); //trash
 		fscanf(fp,"%s",str);
 	    
-		if(Compare_strings(str,ca)){ //found CA -c-alpha atom
+		if(psa_compare_strings(str,ca)){ //found CA -c-alpha atom
 		    fscanf(fp,"%s",str); //trash
 		    fscanf(fp,"%1s",str); //trash
 		
@@ -158,7 +154,7 @@ int main(int np, char** p)
 		}
 	    }
 	}
-	while(!Compare_strings(str,end) && !Compare_strings(str,endmdl)&& !Compare_strings(str,ter));//after this loop str=etalon
+	while(!pca_compare_strings(str,end) && !pca_compare_strings(str,endmdl)&& !pca_compare_strings(str,ter));//after this loop str=etalon
 	lastAtom = numberOfAtom;
     
 	N = lastAtom-firstAtom+1;
@@ -175,10 +171,10 @@ int main(int np, char** p)
 	    printf("*  atom: .         missing atom: 0    *\n");
 	    printf("***************************************\n");
 	    printf("Percentage: string length = 100 chars.\n\n");
-	    mapOfMissings(firstAtom, lastAtom, missingCounter, missingFrom, missingTo, 100);
+	    pca_map_of_missings(firstAtom, lastAtom, missingCounter, missingFrom, missingTo, 100);
 	    printf("\n");
 	    printf("Actual: string length = number of atoms in model.\n\n");
-	    mapOfMissings(firstAtom, lastAtom, missingCounter, missingFrom, missingTo, N);
+	    pca_map_of_missings(firstAtom, lastAtom, missingCounter, missingFrom, missingTo, N);
 	    printf("\n");
 	    printf("*****************************************\n");
 	    printf("If you want to rewrite dat-file with only one segment, call\n./pdb-reader (without arguments) for instructions.\n");
@@ -197,11 +193,11 @@ int main(int np, char** p)
 	numberOfAtom = firstAtom-1;
 	do{
 	    fscanf(fp,"%s",str);
-	    if(Compare_strings(str,atom)){ //found ATOM
+	    if(pca_compare_strings(str,atom)){ //found ATOM
 		fscanf(fp,"%s",str); //trash
 		fscanf(fp,"%s",str);
 	    
-		if(Compare_strings(str,ca)){ //found CA -c-alpha atom
+		if(pca_compare_strings(str,ca)){ //found CA -c-alpha atom
 		    fscanf(fp,"%s",str); //trash
 		    fscanf(fp,"%1s",str); //trash
 		
@@ -232,7 +228,7 @@ int main(int np, char** p)
 		}
 	    }
 	}
-	while(!Compare_strings(str,end) && !Compare_strings(str,endmdl)&& !Compare_strings(str,ter));//after this loop str=etalon
+	while(!pca_compare_strings(str,end) && !pca_compare_strings(str,endmdl)&& !pca_compare_strings(str,ter));//after this loop str=etalon
 	
 	printf("Number of CA atoms: %i.\n", lineCounter);
     
@@ -242,66 +238,4 @@ int main(int np, char** p)
     fclose(fp);
     free(fname);
     return 0;
-}
-
-bool Compare_strings(char *a, char *b)
-{int i=0;
-	do{
-	    if(a[i]==b[i])
-		i++;
-	
-	    else
-		return false;
-	}
-	while(b[i]!='\0'||a[i]!='\0');
-return true;
-}
-
-int rounding(double number)
-{
-    double intpart;
-    double fracpart;
-    int answ;
-
-    fracpart=modf (number , &intpart);
-
-    if(fabs(fracpart)<0.5000)
-	answ=(int)intpart;
-    
-    else
-	answ=(int)intpart+1;
-    
-    return answ;
-}
-
-void mapOfMissings(int firstAtom, int lastAtom, int missingCounter, const int* missingFrom, const int* missingTo, int stringLength)
-{
-    int i,j, tmpN;
-    double unit;
-    
-    unit = (double)stringLength/(lastAtom - firstAtom + 1);
-    
-    tmpN = rounding((double)(missingFrom[0] - firstAtom)*unit);
-    for(i=0;i<tmpN;i++)
-	printf(".");
-	
-    for(j=0;j<missingCounter-1;j++){
-	tmpN = rounding((double)(missingTo[j]-missingFrom[j]+1)*unit);
-	for(i=0;i<tmpN;i++)
-	    printf("0");
-	    
-	tmpN = rounding((double)(missingFrom[j+1] - missingTo[j]-1)*unit);
-	for(i=0;i<tmpN;i++)
-	    printf(".");
-    }
-    
-    tmpN = rounding((double)(missingTo[missingCounter-1] - missingFrom[missingCounter-1]+1)*unit);
-    for(i=0;i<tmpN;i++)
-	printf("0");
-    
-    tmpN = rounding((double)(lastAtom - missingTo[missingCounter-1])*unit);
-    for(i=0;i<tmpN;i++)
-	printf(".");
-	
-    printf("\n");
 }

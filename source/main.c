@@ -39,7 +39,7 @@
 * Uppsala, 2017
 *------------------------------------------------------------------------------*/
 
-#include "CA.h"
+#include "pca_CA.h"
 #include <curl/curl.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -300,7 +300,7 @@ int main(int np, char** p)
     }
     
     fclose(fp1);
-    fclose(fp);
+//    fclose(fp);
     free(fname);
     return 0;
 }
